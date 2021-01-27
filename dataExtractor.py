@@ -1,13 +1,8 @@
 import urllib.request
 import urllib.error
-import csv
-import cv2
 import os
 import sys
 import shutil
-import ast
-import configparser
-import numpy as np
 from Data_Extractor.generic import downloadImageData
 from PIL import Image
 from random import randint
