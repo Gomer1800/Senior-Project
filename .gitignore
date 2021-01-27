@@ -6,3 +6,15 @@ venv
 
 # intellij
 .idea
+
+# Data Directories
+Blacklist_Masks/
+Blacklisted_Images.txt
+Image_Masks/
+Input_Images/
+Mask_Data/
+Mask_Validation/
+Training_Images/
+Validation_Images/
+Whitelist_Masks/
+Whitelisted_Images.txt
