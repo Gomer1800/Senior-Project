@@ -8,6 +8,7 @@ import shutil
 import ast
 import configparser
 import numpy as np
+import Image_Extraction as extract
 from PIL import Image
 from random import randint
 
