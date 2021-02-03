@@ -10,11 +10,13 @@ from random import randint
 def init_argparse():
     parser = argparse.ArgumentParser(
         description="Download the images and extract mask information from the given .csv file.",
+        usage="python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
+              "-n <filename.csv> -c <filename> [-p <0-1>]",
         allow_abbrev=False)
     parser.add_argument('-clean',
                         action='store_true',
                         help="Remove all the directories and files containing image data, a way to 'clean' all "
-                             "directory", )
+                             "directory")
     parser.add_argument('-n',
                         action='store',
                         dest='n_csv_file',

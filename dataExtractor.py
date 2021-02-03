@@ -6,11 +6,6 @@ import Data_Extractor.labelBox as labelBox
 
 
 def _main():
-    """
-    args = sys.argv
-
-    flags = generic.parseCommandLine(numArgs, args)
-    """
     parser = generic.init_argparse()
     options = parser.parse_args()
 
