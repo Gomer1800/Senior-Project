@@ -2,8 +2,36 @@ import urllib.request
 import urllib.error
 import os
 import shutil
+import argparse
 from PIL import Image
 from random import randint
+
+
+def init_argparse():
+    parser = argparse.ArgumentParser(
+        description="Download the images and extract mask information from the given .csv file.",
+        allow_abbrev=False)
+    parser.add_argument('-clean',
+                        action='store_true',
+                        help="Remove all the directories and files containing image data, a way to 'clean' all "
+                             "directory", )
+    parser.add_argument('-n',
+                        action='store',
+                        help="Skip already downloaded images and their associated data and download any new images "
+                             "and their associated data from the given .csv file that follows", )
+    parser.add_argument('-a',
+                        action='store',
+                        help="Re-download all of the images from the given .csv file that follows", )
+    parser.add_argument('-c',
+                        action='store',
+                        help="Specify the config file to use to determine the height and width of the images to save, "
+                             "and the number of points to extract from the image masks", )
+    parser.add_argument('-p',
+                        action='store',
+                        type=float,
+                        help="Specify what percentage of the downloaded images to set aside for validation, "
+                             "percentage is to be a float between 0-1.0. Default percentage is 0.15", )
+
 
 '''Parse the command line to find what flags were given'''
 
