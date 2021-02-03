@@ -17,20 +17,25 @@ def init_argparse():
                              "directory", )
     parser.add_argument('-n',
                         action='store',
+                        dest='n_csv_file',
                         help="Skip already downloaded images and their associated data and download any new images "
                              "and their associated data from the given .csv file that follows", )
     parser.add_argument('-a',
                         action='store',
+                        dest='a_csv_file',
                         help="Re-download all of the images from the given .csv file that follows", )
     parser.add_argument('-c',
                         action='store',
+                        dest='config_file',
                         help="Specify the config file to use to determine the height and width of the images to save, "
                              "and the number of points to extract from the image masks", )
     parser.add_argument('-p',
                         action='store',
+                        dest='percentage',
                         type=float,
                         help="Specify what percentage of the downloaded images to set aside for validation, "
                              "percentage is to be a float between 0-1.0. Default percentage is 0.15", )
+    return parser
 
 
 '''Parse the command line to find what flags were given'''

@@ -6,47 +6,48 @@ import Data_Extractor.labelBox as labelBox
 
 
 def _main():
-    numArgs = len(sys.argv)
+    """
     args = sys.argv
 
     flags = generic.parseCommandLine(numArgs, args)
-    # No flags were given
-    if flags == []:
+    """
+    parser = generic.init_argparse()
+    options = parser.parse_args()
+
+    num_args = len(sys.argv)
+    if num_args == 1:
+        parser.print_help()
         return
 
-    if '-clean' in flags:
+    if options.clean is True:
         generic.cleanData()
         return
 
     validPercent = 0.15
-    configFile = None
+    configFile = options.config_file
     dataFile = None
     downloadType = None
 
-    for f in flags:
-        index = args.index(f)
+    # Save the file to download the images from
+    if options.n_csv_file is None and options.a_csv_file is not None:
+        dataFile = options.a_csv_file
+        downloadType = '-a'
 
-        # Save the file to download the images from
-        if f == '-n' or f == '-a':
-            dataFile = args[index + 1]
-            downloadType = f
+    elif options.a_csv_file is None and options.n_csv_file is not None:
+        dataFile = options.n_csv_file
+        downloadType = '-n'
 
-        # Save the percentage to use for validation
-        elif f == '-p':
-            try:
-                validPercent = float(args[index + 1])
-            except:
-                print("Percentage used for the validation set must be a float between 0-1")
-                return
-
-        # Save the configuration file
-        elif f == '-c':
-            configFile = args[index + 1]
+    # Save the percentage to use for validation
+    elif options.percentage is not None:
+        try:
+            validPercent = float(options.percentage)
+        except:
+            print("Percentage used for the validation set must be a float between 0-1")
+            return
 
     # Not all the required arguments were provided
     if configFile is None or dataFile is None or downloadType is None:
-        print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-              "-n <filename.csv> -c <filename> [-p <0-1>]")
+        parser.print_help()
         return
 
     # Download the images and their associated data
