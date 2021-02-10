@@ -44,6 +44,7 @@ def init_argparse():
 
 
 def parseCommandLine(numArgs, args):
+    # TODO(LUIS): When ArgeParse is fully implemented, remove this old code
     flags = []
 
     for i in range(numArgs):
