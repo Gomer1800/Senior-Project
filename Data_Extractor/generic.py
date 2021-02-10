@@ -2,53 +2,44 @@ import urllib.request
 import urllib.error
 import os
 import shutil
+import argparse
 from PIL import Image
 from random import randint
 
 '''Parse the command line to find what flags were given'''
 
 
-def parseCommandLine(numArgs, args):
-    flags = []
-
-    for i in range(numArgs):
-        if args[i] == '-clean':
-            if numArgs != 2:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-            return flags
-
-        if args[i] == '-n':
-            if '-a' in flags or '-n' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-a':
-            if '-a' in flags or '-n' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-p':
-            if '-p' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-c':
-            if '-c' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-    return flags
+def init_argparse():
+    parser = argparse.ArgumentParser(
+        description="Download the images and extract mask information from the given .csv file.",
+        usage="python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
+              "-n <filename.csv> -c <filename> [-p <0-1>]",
+        allow_abbrev=False)
+    parser.add_argument('-clean',
+                        action='store_true',
+                        help="Remove all the directories and files containing image data, a way to 'clean' all "
+                             "directory")
+    parser.add_argument('-n',
+                        action='store',
+                        dest='n_csv_file',
+                        help="Skip already downloaded images and their associated data and download any new images "
+                             "and their associated data from the given .csv file that follows", )
+    parser.add_argument('-a',
+                        action='store',
+                        dest='a_csv_file',
+                        help="Re-download all of the images from the given .csv file that follows", )
+    parser.add_argument('-c',
+                        action='store',
+                        dest='config_file',
+                        help="Specify the config file to use to determine the height and width of the images to save, "
+                             "and the number of points to extract from the image masks", )
+    parser.add_argument('-p',
+                        action='store',
+                        dest='percentage',
+                        type=float,
+                        help="Specify what percentage of the downloaded images to set aside for validation, "
+                             "percentage is to be a float between 0-1.0. Default percentage is 0.15", )
+    return parser
 
 
 '''Remove all the directories and files containing data information'''
