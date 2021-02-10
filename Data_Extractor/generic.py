@@ -6,6 +6,8 @@ import argparse
 from PIL import Image
 from random import randint
 
+'''Parse the command line to find what flags were given'''
+
 
 def init_argparse():
     parser = argparse.ArgumentParser(
@@ -38,53 +40,6 @@ def init_argparse():
                         help="Specify what percentage of the downloaded images to set aside for validation, "
                              "percentage is to be a float between 0-1.0. Default percentage is 0.15", )
     return parser
-
-
-'''Parse the command line to find what flags were given'''
-
-
-def parseCommandLine(numArgs, args):
-    # TODO(LUIS): When ArgeParse is fully implemented, remove this old code
-    flags = []
-
-    for i in range(numArgs):
-        if args[i] == '-clean':
-            if numArgs != 2:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-            return flags
-
-        if args[i] == '-n':
-            if '-a' in flags or '-n' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-a':
-            if '-a' in flags or '-n' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-p':
-            if '-p' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-        if args[i] == '-c':
-            if '-c' in flags:
-                print("Usage: python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-                      "-n <filename.csv> -c <filename> [-p <0-1>]")
-                return []
-            flags.append(args[i])
-
-    return flags
 
 
 '''Remove all the directories and files containing data information'''
