@@ -1,6 +1,7 @@
 import sys
 import Data_Extractor.generic as generic
 import Data_Extractor.labelBox as labelBox
+import Data_Extractor.scaleAI as scaleAI
 
 '''Extract input and expected output data from the csv file'''
 
@@ -46,7 +47,8 @@ def _main():
         return
 
     # Download the images and their associated data
-    labelBox.downloadImageData(downloadType, dataFile, configFile)
+    # labelBox.downloadImageData(downloadType, dataFile, configFile)
+    scaleAI.downloadImageData(downloadType, dataFile, configFile)
 
     # Split images into training and validation directories,
     # Creates new random splits on every call
