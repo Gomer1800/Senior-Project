@@ -17,6 +17,7 @@ def init_argparse():
         allow_abbrev=False)
     # Add mutually exclusive group of arguments
     group = parser.add_mutually_exclusive_group()
+
     group.add_argument('-clean',
                        action='store_true',
                        help="Remove all the directories and files containing image data, a way to 'clean' all "
