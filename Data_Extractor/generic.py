@@ -16,8 +16,7 @@ def init_argparse():
               "-n <filename.csv> -c <filename> [-p <0-1>]",
         allow_abbrev=False)
     # Add mutually exclusive group of arguments
-    group = parser.add_mutually_exclusive_group()
-
+    group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-clean',
                        action='store_true',
                        help="Remove all the directories and files containing image data, a way to 'clean' all "
