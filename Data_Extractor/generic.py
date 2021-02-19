@@ -12,26 +12,27 @@ from random import randint
 def init_argparse():
     parser = argparse.ArgumentParser(
         description="Download the images and extract mask information from the given .csv file.",
-        usage="python3 dataExtractor.py -clean | -a <filename> [<filename>] -c <filename> [-p <0-1>] | -n <filename> "
-              "[<filename>] -c <filename> [-p <0-1>]",
+        # usage="python3 dataExtractor.py [-clean] {-a <filename> [<filename>] -c <filename> [-p <0-1>] | -n <filename>"
+        #      " [<filename>] -c <filename> [-p <0-1>]}",
         allow_abbrev=False)
+    parser.add_argument('-clean',
+                        action='store_true',
+                        help="Remove all the directories and files containing image data, a way to 'clean' all "
+                             "directory")
+
     # Add mutually exclusive group of arguments
-    primary_group = parser.add_mutually_exclusive_group(required=True)
-    primary_group.add_argument('-clean',
-                               action='store_true',
-                               help="Remove all the directories and files containing image data, a way to 'clean' all "
-                                    "directory")
+    primary_group = parser.add_mutually_exclusive_group()
     primary_group.add_argument('-a',
                                action='store',
                                nargs='?',
-                               dest='csv | json file',
-                               help="Re-download all of the images from the given file(s) that follows", )
+                               # dest='csv | json file',
+                               help="Re-download all of the images from the given csv | json file(s) that follows")
     primary_group.add_argument('-n',
                                action='store',
                                nargs='?',
-                               dest='csv | json file',
+                               # dest='csv | json file',
                                help="Skip already downloaded images and their associated data and download any new "
-                                    "images and their associated data from the given file(s) that follows", )
+                                    "images and their associated data from the given csv | json file(s) that follows")
     parser.add_argument('-api',
                         choices=['labelbox', 'scaleai', 'both'],
                         default='both',

@@ -21,16 +21,16 @@ def _main():
 
     validPercent = 0.15
     configFile = options.config_file
-    dataFile = None
+    data_files = None
     downloadType = None
 
     # Save the file to download the images from
-    if options.n_csv_file is None and options.a_csv_file is not None:
-        dataFile = options.a_csv_file
+    if options.N is None and options.A is not None:
+        data_files = options.A[0]
         downloadType = '-a'
 
-    elif options.a_csv_file is None and options.n_csv_file is not None:
-        dataFile = options.n_csv_file
+    elif options.A is None and options.N is not None:
+        data_files = options.N[0]
         downloadType = '-n'
 
     # Save the percentage to use for validation
@@ -42,13 +42,13 @@ def _main():
             return
 
     # Not all the required arguments were provided
-    if configFile is None or dataFile is None or downloadType is None:
+    if configFile is None or data_files is None or downloadType is None:
         parser.print_help()
         return
 
     # Download the images and their associated data
     # labelBox.downloadImageData(downloadType, dataFile, configFile)
-    scaleAI.downloadImageData(downloadType, dataFile, configFile)
+    scaleAI.downloadImageData(downloadType, data_files, configFile)
 
     # Split images into training and validation directories,
     # Creates new random splits on every call
