@@ -148,7 +148,7 @@ def downloadImageData(flag, json_file, config_file):
         new_img.save(dir_path + "/Input_Images/" + img_name)
         new_img.close()
 
-        print("Generating Mask")
+        print("Generating Mask\tscaleAI")
         # Create a blank image to draw the mask on
         org_mask = np.zeros([orig_height, orig_width, 3], dtype=np.uint8)
 

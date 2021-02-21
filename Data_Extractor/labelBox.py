@@ -114,7 +114,7 @@ def downloadImageData(flag, csvFile, configFile):
         newImg.save(dirPath + "/Input_Images/" + imgName)
         newImg.close()
 
-        print("Generating Mask")
+        print("Generating Mask\tlabelBox")
         # Create a blank image to draw the mask on
         orgMask = np.zeros([origHeight, origWidth, 3], dtype=np.uint8)
 

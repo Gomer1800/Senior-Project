@@ -18,7 +18,9 @@ def _main():
 
     if options.clean is True:
         generic.cleanData()
-        return
+        # exit program if '-clean'  is solely called
+        if options.a is None and options.n is None:
+            return
 
     valid_percent = 0.15
     config_file = options.config_file
