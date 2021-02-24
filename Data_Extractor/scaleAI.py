@@ -60,16 +60,6 @@ def download_images(flag,
 
         # Get the review score of the image
         review = task['customer_review_status']
-        """
-        review = ast.literal_eval(review)
-        runningScore = 0
-        numScores = len(review)
-        for i in range(numScores):
-            # Load the current entry as a dictionary
-            entry = ast.literal_eval(str(review[i]))
-            # Add the score of the entry to the running total
-            runningScore += entry['score']
-        """
 
         # If the image has a non-positive score, do not download it
         if review != 'accepted':
@@ -116,12 +106,6 @@ def download_images(flag,
         # Get the mask labels
         response = task['response']
         annotations = response['annotations']
-
-        """ 
-        freeSpace = row['Label']
-        freeSpace = ast.literal_eval(freeSpace)
-        freeSpace = freeSpace['Free space']
-        """
 
         # Get each polygon in the mask
         polygons = []
@@ -193,16 +177,3 @@ def download_images(flag,
         new_mask.close()
 
     return
-
-
-def _main():
-    tasks = parse_json('tasks.json')
-
-    for task in tasks:
-        print(task['task_id'])
-        params = task['params']
-        print(params['attachment'])
-
-
-if __name__ == '__main__':
-    _main()

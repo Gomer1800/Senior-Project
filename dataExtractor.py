@@ -1,8 +1,6 @@
 import sys
 import os
 import Data_Extractor.generic as generic
-import Data_Extractor.labelBox as labelBox
-import Data_Extractor.scaleAI as scaleAI
 
 '''Extract input and expected output data from the csv file'''
 
@@ -51,16 +49,16 @@ def _main():
 
     # Download the images and their associated data
     if options.api == 'labelbox' or options.api == "scaleai":
-        generic.downloadImageData(download_type, data_files[0], config_file, options.api)
+        generic.download_image_data(download_type, data_files[0], config_file, options.api)
 
     elif options.api == 'both':
         # Use file extensions to call correct api
         for data_file in data_files:
             root, ext = os.path.splitext(data_file)
             if ext == '.csv':
-                generic.downloadImageData(download_type, data_file, config_file, "labelbox")
+                generic.download_image_data(download_type, data_file, config_file, "labelbox")
             elif ext == '.json':
-                generic.downloadImageData(download_type, data_file, config_file, "scaleai")
+                generic.download_image_data(download_type, data_file, config_file, "scaleai")
             else:
                 # TODO(LUIS): Handle error, skipping file for now
                 print("Skipping file" + data_file)
