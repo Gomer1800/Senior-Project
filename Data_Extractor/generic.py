@@ -19,18 +19,15 @@ def init_argparse():
                         action='store_true',
                         help="Remove all the directories and files containing image data, a way to 'clean' all "
                              "directory")
-
     # Add mutually exclusive group of arguments
     primary_group = parser.add_mutually_exclusive_group()
     primary_group.add_argument('-a',
                                action='store',
                                nargs='+',
-                               # dest='csv | json file',
                                help="Re-download all of the images from the given csv | json file(s) that follows")
     primary_group.add_argument('-n',
                                action='store',
                                nargs='+',
-                               # dest='csv | json file',
                                help="Skip already downloaded images and their associated data and download any new "
                                     "images and their associated data from the given csv | json file(s) that follows")
     parser.add_argument('-api',
