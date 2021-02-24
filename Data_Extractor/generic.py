@@ -1,8 +1,13 @@
-import urllib.request
-import urllib.error
-import os
-import shutil
 import argparse
+import configparser
+import os
+import urllib.error
+import urllib.request
+import shutil
+
+import Data_Extractor.labelBox as labelBox
+import Data_Extractor.scaleAI as scaleAI
+
 from PIL import Image
 from random import randint
 
@@ -12,22 +17,27 @@ from random import randint
 def init_argparse():
     parser = argparse.ArgumentParser(
         description="Download the images and extract mask information from the given .csv file.",
-        usage="python3 dataExtractor.py -clean | -a <filename.csv> -c <filename> [-p <0-1>] |" + \
-              "-n <filename.csv> -c <filename> [-p <0-1>]",
+        # usage="python3 dataExtractor.py [-clean] {-a <filename> [<filename>] -c <filename> [-p <0-1>] | -n <filename>"
+        #      " [<filename>] -c <filename> [-p <0-1>]}",
         allow_abbrev=False)
     parser.add_argument('-clean',
                         action='store_true',
                         help="Remove all the directories and files containing image data, a way to 'clean' all "
                              "directory")
-    parser.add_argument('-n',
-                        action='store',
-                        dest='n_csv_file',
-                        help="Skip already downloaded images and their associated data and download any new images "
-                             "and their associated data from the given .csv file that follows", )
-    parser.add_argument('-a',
-                        action='store',
-                        dest='a_csv_file',
-                        help="Re-download all of the images from the given .csv file that follows", )
+    # Add mutually exclusive group of arguments
+    primary_group = parser.add_mutually_exclusive_group()
+    primary_group.add_argument('-a',
+                               action='store',
+                               nargs='+',
+                               help="Re-download all of the images from the given csv | json file(s) that follows")
+    primary_group.add_argument('-n',
+                               action='store',
+                               nargs='+',
+                               help="Skip already downloaded images and their associated data and download any new "
+                                    "images and their associated data from the given csv | json file(s) that follows")
+    parser.add_argument('-api',
+                        choices=['labelbox', 'scaleai', 'both'],
+                        help="Source of images")
     parser.add_argument('-c',
                         action='store',
                         dest='config_file',
@@ -206,5 +216,90 @@ def splitImages(validPercent):
     for imgName in images:
         img = Image.open(dirPath + "/Input_Images/" + imgName)
         img.save(dirPath + "/Training_Images/" + imgName)
+
+    return
+
+
+def download_image_data(flag, data_file, config_file, api):
+    image_file = None
+
+    if api == "labelbox":
+        try:
+            image_file = open(data_file, 'r')  # Open the csv file
+        except:
+            print("Error opening file: " + data_file)
+            return
+    else:  # scaleai logic
+        tasks = scaleAI.parse_json(data_file)
+
+    # GENERIC
+    # ** get configuration
+    config_client = configparser.ConfigParser()
+    config_client.read(config_file)
+
+    # ** Image Sizes
+    img_width = config_client.getint('model', 'input_width')
+    img_height = config_client.getint('model', 'input_height')
+
+    # ** Number of outputs
+    num_outputs = config_client.getint('model', 'num_outputs')
+
+    white_list, black_list = None, None
+    try:
+        if flag == '-a':
+            white_list = open("Whitelisted_Images.txt", 'w')
+            black_list = open("Blacklisted_Images.txt", 'w')
+        elif flag == '-n':
+            white_list = open("Whitelisted_Images.txt", 'a')
+            black_list = open("Blacklisted_Images.txt", 'a')
+        else:
+            return
+    except OSError as err:
+        print("Error: {0}".format(err))
+        return
+
+    dir_path = os.getcwd()  # Get the current directory path
+
+    # Make the directories to store the image information
+    try:
+        if not os.path.isdir(dir_path + '/Input_Images'):
+            os.mkdir(dir_path + '/Input_Images')
+        if not os.path.isdir(dir_path + '/Image_Masks'):
+            os.mkdir(dir_path + '/Image_Masks')
+        if not os.path.isdir(dir_path + '/Mask_Data'):
+            os.mkdir(dir_path + '/Mask_Data')
+        if not os.path.isdir(dir_path + '/Mask_Validation'):
+            os.mkdir(dir_path + '/Mask_Validation')
+        if not os.path.isdir(dir_path + '/Blacklist_Masks'):
+            os.mkdir(dir_path + '/Blacklist_Masks')
+        if not os.path.isdir(dir_path + '/Whitelist_Masks'):
+            os.mkdir(dir_path + '/Whitelist_Masks')
+        if not os.path.isdir(dir_path + '/Unlabeled'):
+            os.mkdir(dir_path + '/Unlabeled')
+    except OSError as err:
+        print("Error: {0}".format(err))
+        return
+
+    if api == "labelbox":
+        labelBox.download_images(flag,
+                                 num_outputs,
+                                 white_list,
+                                 black_list,
+                                 data_file,
+                                 img_width,
+                                 img_height,
+                                 dir_path)
+    else:  # scaleai logic
+        scaleAI.download_images(flag,
+                                num_outputs,
+                                white_list,
+                                black_list,
+                                data_file,
+                                img_width,
+                                img_height,
+                                dir_path)
+
+    white_list.close()
+    black_list.close()
 
     return

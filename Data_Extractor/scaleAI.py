@@ -1,10 +1,10 @@
-# TODO(LUIS): identify scaleAI logic in dataExtractor
 import cv2
-import os
-import configparser
-import numpy as np
 import json
+import os
+
 import Data_Extractor.generic as generic
+import numpy as np
+
 from PIL import Image
 
 '''Use python json library to open json file and return list of tasks'''
@@ -32,72 +32,26 @@ def parse_json(json_file):
     return tasks
 
 
-'''Download the image and mask data from the .csv file.'''
+'''Download the image and mask data from the .json file.'''
 
 
-def downloadImageData(flag, json_file, config_file):
-    # UNIQUE
-    tasks = parse_json(json_file)
-
-    for task in tasks:
-        pass
-
-    # GENERIC
-    # ** get configuration
-    config_client = configparser.ConfigParser()
-    config_client.read(config_file)
-
-    # ** Image Sizes
-    img_width = config_client.getint('model', 'input_width')
-    img_height = config_client.getint('model', 'input_height')
-
-    # ** Number of outputs
-    num_outputs = config_client.getint('model', 'num_outputs')
-
-    # GENERIC
-    white_list, black_list = None, None
+def download_images(flag,
+                    num_outputs,
+                    white_list,
+                    black_list,
+                    json_file,
+                    img_width,
+                    img_height,
+                    dir_path):
     try:
-        if flag == '-a':
-            white_list = open("Whitelisted_Images.txt", 'w')
-            black_list = open("Blacklisted_Images.txt", 'w')
-        elif flag == '-n':
-            white_list = open("Whitelisted_Images.txt", 'a')
-            black_list = open("Blacklisted_Images.txt", 'a')
-        else:
-            return
-    except OSError as err:
-        print("Error: {0}".format(err))
+        tasks = parse_json(json_file)
+    except:
+        print("Error opening file: " + json_file)
         return
-
-    # GENERIC
-    dir_path = os.getcwd()  # Get the current directory path
-
-    # Make the directories to store the image information
-    try:
-        if not os.path.isdir(dir_path + '/Input_Images'):
-            os.mkdir(dir_path + '/Input_Images')
-        if not os.path.isdir(dir_path + '/Image_Masks'):
-            os.mkdir(dir_path + '/Image_Masks')
-        if not os.path.isdir(dir_path + '/Mask_Data'):
-            os.mkdir(dir_path + '/Mask_Data')
-        if not os.path.isdir(dir_path + '/Mask_Validation'):
-            os.mkdir(dir_path + '/Mask_Validation')
-        if not os.path.isdir(dir_path + '/Blacklist_Masks'):
-            os.mkdir(dir_path + '/Blacklist_Masks')
-        if not os.path.isdir(dir_path + '/Whitelist_Masks'):
-            os.mkdir(dir_path + '/Whitelist_Masks')
-        if not os.path.isdir(dir_path + '/Unlabeled'):
-            os.mkdir(dir_path + '/Unlabeled')
-    except OSError as err:
-        print("Error: {0}".format(err))
-        return
-
-    # UNIQUE
 
     # Download the images and masks from the json file
     img_num = 0
     for task in tasks:
-        # UNIQUE
         img_num += 1
         print("Image: " + str(img_num), end='')
 
@@ -132,7 +86,14 @@ def downloadImageData(flag, json_file, config_file):
         print(" Getting Original, ", end='')
         params = task['params']
         img_url = params['attachment']
-        org_img = generic.getImageFromURL(img_url)  # Retrieve the original image
+        org_img = None
+        for i in range(5):
+            try:
+                org_img = generic.getImageFromURL(img_url)  # Retrieve the original image
+                break
+            except:
+                # TODO(LUIS): How should we handle this error, if at all?
+                pass
         new_img = Image.open(org_img[0])
         new_img = new_img.convert("RGB")  # Convert the image to RGB format
         orig_width, orig_height = new_img.size
@@ -148,7 +109,7 @@ def downloadImageData(flag, json_file, config_file):
         new_img.save(dir_path + "/Input_Images/" + img_name)
         new_img.close()
 
-        print("Generating Mask")
+        print("Generating Mask\tscaleAI")
         # Create a blank image to draw the mask on
         org_mask = np.zeros([orig_height, orig_width, 3], dtype=np.uint8)
 
@@ -180,7 +141,6 @@ def downloadImageData(flag, json_file, config_file):
                 points = np.array(points, dtype=np.int)
                 polygons.append(points)
 
-        # GENERIC
         # Draw the mask and save it
         org_mask = cv2.fillPoly(org_mask, polygons, (255, 255, 255), lineType=cv2.LINE_AA)
         new_mask = cv2.resize(org_mask, (img_width, img_height))
@@ -231,13 +191,6 @@ def downloadImageData(flag, json_file, config_file):
 
         mask_data_file.close()
         new_mask.close()
-
-    # UNIQUE
-    # image_file.close()
-
-    # GENERIC
-    white_list.close()
-    black_list.close()
 
     return
 
