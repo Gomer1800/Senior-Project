@@ -1,8 +1,13 @@
-import urllib.request
-import urllib.error
-import os
-import shutil
 import argparse
+import configparser
+import os
+import urllib.error
+import urllib.request
+import shutil
+
+import Data_Extractor.labelBox as labelBox
+import Data_Extractor.scaleAI as scaleAI
+
 from PIL import Image
 from random import randint
 
@@ -211,5 +216,90 @@ def splitImages(validPercent):
     for imgName in images:
         img = Image.open(dirPath + "/Input_Images/" + imgName)
         img.save(dirPath + "/Training_Images/" + imgName)
+
+    return
+
+
+def download_image_data(flag, data_file, config_file, api):
+    image_file = None
+
+    if api == "labelbox":
+        try:
+            image_file = open(data_file, 'r')  # Open the csv file
+        except:
+            print("Error opening file: " + data_file)
+            return
+    else:  # scaleai logic
+        tasks = scaleAI.parse_json(data_file)
+
+    # GENERIC
+    # ** get configuration
+    config_client = configparser.ConfigParser()
+    config_client.read(config_file)
+
+    # ** Image Sizes
+    img_width = config_client.getint('model', 'input_width')
+    img_height = config_client.getint('model', 'input_height')
+
+    # ** Number of outputs
+    num_outputs = config_client.getint('model', 'num_outputs')
+
+    white_list, black_list = None, None
+    try:
+        if flag == '-a':
+            white_list = open("Whitelisted_Images.txt", 'w')
+            black_list = open("Blacklisted_Images.txt", 'w')
+        elif flag == '-n':
+            white_list = open("Whitelisted_Images.txt", 'a')
+            black_list = open("Blacklisted_Images.txt", 'a')
+        else:
+            return
+    except OSError as err:
+        print("Error: {0}".format(err))
+        return
+
+    dir_path = os.getcwd()  # Get the current directory path
+
+    # Make the directories to store the image information
+    try:
+        if not os.path.isdir(dir_path + '/Input_Images'):
+            os.mkdir(dir_path + '/Input_Images')
+        if not os.path.isdir(dir_path + '/Image_Masks'):
+            os.mkdir(dir_path + '/Image_Masks')
+        if not os.path.isdir(dir_path + '/Mask_Data'):
+            os.mkdir(dir_path + '/Mask_Data')
+        if not os.path.isdir(dir_path + '/Mask_Validation'):
+            os.mkdir(dir_path + '/Mask_Validation')
+        if not os.path.isdir(dir_path + '/Blacklist_Masks'):
+            os.mkdir(dir_path + '/Blacklist_Masks')
+        if not os.path.isdir(dir_path + '/Whitelist_Masks'):
+            os.mkdir(dir_path + '/Whitelist_Masks')
+        if not os.path.isdir(dir_path + '/Unlabeled'):
+            os.mkdir(dir_path + '/Unlabeled')
+    except OSError as err:
+        print("Error: {0}".format(err))
+        return
+
+    if api == "labelbox":
+        labelBox.download_images(flag,
+                                 num_outputs,
+                                 white_list,
+                                 black_list,
+                                 data_file,
+                                 img_width,
+                                 img_height,
+                                 dir_path)
+    else:  # scaleai logic
+        scaleAI.download_images(flag,
+                                num_outputs,
+                                white_list,
+                                black_list,
+                                data_file,
+                                img_width,
+                                img_height,
+                                dir_path)
+
+    white_list.close()
+    black_list.close()
 
     return

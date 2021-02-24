@@ -50,20 +50,17 @@ def _main():
         return
 
     # Download the images and their associated data
-    if options.api == 'labelbox':
-        labelBox.downloadImageData(download_type, data_files[0], config_file)
-
-    elif options.api == 'scaleai':
-        scaleAI.downloadImageData(download_type, data_files[0], config_file)
+    if options.api == 'labelbox' or options.api == "scaleai":
+        generic.downloadImageData(download_type, data_files[0], config_file, options.api)
 
     elif options.api == 'both':
         # Use file extensions to call correct api
         for data_file in data_files:
             root, ext = os.path.splitext(data_file)
             if ext == '.csv':
-                labelBox.downloadImageData(download_type, data_file, config_file)
+                generic.downloadImageData(download_type, data_file, config_file, "labelbox")
             elif ext == '.json':
-                scaleAI.downloadImageData(download_type, data_file, config_file)
+                generic.downloadImageData(download_type, data_file, config_file, "scaleai")
             else:
                 # TODO(LUIS): Handle error, skipping file for now
                 print("Skipping file" + data_file)
