@@ -221,18 +221,6 @@ def splitImages(validPercent):
 
 
 def download_image_data(flag, data_file, config_file, api):
-    image_file = None
-
-    if api == "labelbox":
-        try:
-            image_file = open(data_file, 'r')  # Open the csv file
-        except:
-            print("Error opening file: " + data_file)
-            return
-    else:  # scaleai logic
-        tasks = scaleAI.parse_json(data_file)
-
-    # GENERIC
     # ** get configuration
     config_client = configparser.ConfigParser()
     config_client.read(config_file)
