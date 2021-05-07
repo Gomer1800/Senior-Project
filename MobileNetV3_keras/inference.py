@@ -62,7 +62,7 @@ def main():
     rank = False
     numInfer = None
 
-    flags = parseCommandLine(numArgs, args);
+    flags = parseCommandLine(numArgs, args)
 
     for f in flags:
         index = args.index(f)
@@ -127,7 +127,7 @@ def predictImages(config_file, weight_path, numInfer):
     # ** Images
     image_dir = config_client.get('inference', 'image_path')
     if not os.path.exists(image_dir):
-        raise 'input dir does not exist'
+        raise Exception('input dir does not exist')
 
     # ** Where to store the predictions
     inference_dir = config_client.get('inference', 'inference_dir')
@@ -265,7 +265,7 @@ def rankImages(config_file):
     # ** Images
     image_dir = config_client.get('rank', 'image_path')
     if not os.path.exists(image_dir):
-        raise 'input dir does not exist'
+        raise Exception('input dir does not exist')
 
     # ** Input Sizes
     input_width = config_client.getint('model', 'input_width')
@@ -378,7 +378,7 @@ def rankImages(config_file):
 # Turn the image to RGB and normalize it
 def image_augmentation(img):
     if img is None:
-        raise '** Failed to read image.'
+        raise Exception('** Failed to read image.')
     # to rgb
     img_copy = img.copy()
     img_copy = img_copy[:, :, ::-1]
