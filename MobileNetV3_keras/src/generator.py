@@ -1,11 +1,11 @@
 import os
 import cv2
 import sys
-import keras
+import tensorflow.keras as keras
 import numpy as np
 import threading
-from keras.utils import Sequence
-from augmentimages import AugmentImages
+from tensorflow.keras.utils import Sequence
+from MobileNetV3_keras.augmentimages import AugmentImages
 
 class DataGenerator(Sequence):
     def __init__(self, dir_path, batch_size=16, aug_freq=0.5, image_width=640, image_height=360, shuffle=True, n=128):
