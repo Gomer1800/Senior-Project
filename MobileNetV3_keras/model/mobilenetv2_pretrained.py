@@ -3,14 +3,14 @@
     [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244?context=cs)
 """
 
-from keras.applications.mobilenet_v2 import MobileNetV2
-from keras.models import Model
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.models import Model
 
-from keras.layers import Conv2D, DepthwiseConv2D, Dense, GlobalAveragePooling2D, Dropout
-from keras.layers import Activation, BatchNormalization, Add, Multiply, Reshape, Flatten
+from tensorflow.keras.layers import Conv2D, DepthwiseConv2D, Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.layers import Activation, BatchNormalization, Add, Multiply, Reshape, Flatten
 
-from keras import backend as K
-from keras.engine.input_layer import Input
+from tensorflow.keras import backend as K
+from tensorflow.keras import Input
 
 class MobileNetV2_Pretrained:
     def __init__(self, shape, num_outputs, alpha=1.0):

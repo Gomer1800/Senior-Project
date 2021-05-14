@@ -1,13 +1,12 @@
 import tensorflow as tf
 
-from keras import backend as K
-from keras.models import Model
-
-from keras.layers import Conv2D, BatchNormalization, ReLU, DepthwiseConv2D, Activation, Input, Add
-from keras.layers import GlobalAveragePooling2D, Reshape, Dense, multiply, Softmax, Flatten
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D, BatchNormalization, ReLU, DepthwiseConv2D, Activation, Input, Add
+from tensorflow.keras.layers import GlobalAveragePooling2D, Reshape, Dense, multiply, Softmax, Flatten
 
 # ** to update custom Activate functions
-from keras.utils.generic_utils import get_custom_objects
+from tensorflow.keras.utils import get_custom_objects
 
 
 """ Define layers block functions """

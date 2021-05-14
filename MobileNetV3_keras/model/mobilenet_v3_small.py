@@ -3,12 +3,12 @@
     [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244?context=cs)
 """
 
-from keras.models import Model
-from keras.layers import Input, Conv2D, GlobalAveragePooling2D, Reshape, Dropout
-from keras.layers import Flatten, Dense
-from keras.utils.vis_utils import plot_model
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, GlobalAveragePooling2D, Reshape, Dropout
+from tensorflow.keras.layers import Flatten, Dense
+from tensorflow.keras.utils import plot_model
 
-from model.mobilenet_base import MobileNetBase
+from .mobilenet_base import MobileNetBase
 
 class MobileNetV3_Small(MobileNetBase):
     def __init__(self, shape, num_outputs, alpha=1.0, include_top=True):

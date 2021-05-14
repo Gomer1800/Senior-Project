@@ -13,7 +13,7 @@ from albumentations import (
     IAAPerspective, IAASharpen, IAAEmboss, RandomBrightnessContrast, Flip, OneOf, Compose
 )
 from PIL import Image
-from keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 class AugmentImages:
     def __init__(self, num_outputs, p):
