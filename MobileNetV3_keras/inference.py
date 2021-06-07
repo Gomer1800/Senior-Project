@@ -19,10 +19,10 @@ import matplotlib.pyplot as plt
 '''Parse the command line to find what flags were given'''
 
 
-def parseCommandLine(numArgs, args):
+def parse_command_line(num_args, args):
     flags = []
 
-    for i in range(numArgs):
+    for i in range(num_args):
         if args[i] == '-c':
             if '-c' in flags:
                 print("Usage: python3 inference.py -c <config_file> [-n <int>] [-w <weights>] | [-r]")
@@ -57,12 +57,12 @@ def parseCommandLine(numArgs, args):
 def main():
     config_file = None
     weight_path = None
-    numArgs = len(sys.argv)
+    num_args = len(sys.argv)
     args = sys.argv
     rank = False
-    numInfer = None
+    num_infer = None
 
-    flags = parseCommandLine(numArgs, args);
+    flags = parse_command_line(num_args, args)
 
     for f in flags:
         index = args.index(f)
@@ -82,7 +82,7 @@ def main():
         # Predict only the given portion of the images
         elif f == '-n':
             try:
-                numInfer = int(args[index + 1])
+                num_infer = int(args[index + 1])
             except:
                 print("Usage: python3 inference.py -c <config_file> [-n <int>] [-w <weights>] | [-r]")
                 return
@@ -95,12 +95,12 @@ def main():
     # Rank the unlabeled images
     if rank:
         print("Rank Images")
-        rankImages(config_file)
+        rank_images(config_file)
 
     # Predict the free space in the images
     else:
         print("Predict Images")
-        predictImages(config_file, weight_path, numInfer)
+        predict_images(config_file, weight_path, num_infer)
 
     return
 
@@ -109,9 +109,9 @@ def main():
    config file or given weight_path'''
 
 
-def predictImages(config_file, weight_path, numInfer):
+def predict_images(config_file, weight_path, num_infer):
     # Make inferences on the images in the image_dir
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(os.path.abspath(__file__))
 
     # ** get configuration
     config_client = configparser.ConfigParser()
@@ -127,7 +127,7 @@ def predictImages(config_file, weight_path, numInfer):
     # ** Images
     image_dir = config_client.get('inference', 'image_path')
     if not os.path.exists(image_dir):
-        raise 'input dir does not exist'
+        raise Exception('input dir does not exist')
 
     # ** Where to store the predictions
     inference_dir = config_client.get('inference', 'inference_dir')
@@ -143,26 +143,27 @@ def predictImages(config_file, weight_path, numInfer):
 
     print("Loading Model")
     # Load the old model
-    '''model = model = load_model(os.path.join(ROOT_DIR, weight_path),
+    '''model = model = load_model(os.path.join(root_dir, weight_path),
                             custom_objects={'Hswish':Hswish})'''
 
     # Load the the new model
-    model = load_model(os.path.join(ROOT_DIR, weight_path),
+    model = load_model(os.path.join(root_dir, weight_path),
                        custom_objects={'_hard_swish': _hard_swish,
                                        '_relu6': _relu6})
 
     trajectory = Trajectory(input_width, input_height, num_outputs)
-    robotCenter = trajectory.robotCenter
-    robotWidth = trajectory.robotWidth
-    robotCenter = trajectory.robotCenter
-    robotLeft = trajectory.robotLeft
-    robotRight = trajectory.robotRight
-    robotFront = trajectory.robotFront  # Front of the robot
-    maxTranslation = trajectory.maxTranslation
+    # TODO(LUIS): Why do we assign robot_center twice?
+    robot_center = trajectory.robotCenter
+    robot_width = trajectory.robotWidth
+    robot_center = trajectory.robotCenter
+    robot_left = trajectory.robotLeft
+    robot_right = trajectory.robotRight
+    robot_front = trajectory.robotFront  # Front of the robot
+    max_translation = trajectory.maxTranslation
 
     # Run through the images and predict the free space
     n = 1
-    stepSize = input_width // num_outputs
+    step_size = input_width // num_outputs
     for _id in os.listdir(image_dir):
         # Get the image
         _id_path = os.path.join(image_dir, _id)
@@ -176,31 +177,31 @@ def predictImages(config_file, weight_path, numInfer):
         prediction = model.predict(X)[0]
 
         # Load the image to draw the extracted mask data on for validation
-        validationMaskImage = cv2.imread(_id_path)
+        validation_mask_image = cv2.imread(_id_path)
 
-        highestPoint = robotCenter
+        highest_point = robot_center
         x = 0
         for i in range(len(prediction)):
             y = int(round(prediction[i] * input_height))
 
-            if y < highestPoint[1]:
-                highestPoint = (x, y)
+            if y < highest_point[1]:
+                highest_point = (x, y)
 
             # Draw circles on the original image to show where the predicted free space occurs
-            validationMaskImage = cv2.circle(validationMaskImage, (x, y), 1, (0, 255, 0), -1)
-            x += stepSize
+            validation_mask_image = cv2.circle(validation_mask_image, (x, y), 1, (0, 255, 0), -1)
+            x += step_size
 
         # Draw a line across the image where the furthest point from the center is
-        cv2.line(validationMaskImage, (0, highestPoint[1]), (input_width - 1, highestPoint[1]), (0, 0, 255), 2)
+        cv2.line(validation_mask_image, (0, highest_point[1]), (input_width - 1, highest_point[1]), (0, 0, 255), 2)
 
         # Draw lines representing the sides of the robot
-        cv2.line(validationMaskImage, (robotCenter[0] - robotWidth, robotCenter[1]),
-                 (robotCenter[0] - robotWidth, robotFront), (0, 0, 255), 2)
-        cv2.line(validationMaskImage, (robotCenter[0] + robotWidth, robotCenter[1]),
-                 (robotCenter[0] + robotWidth, robotFront), (0, 0, 255), 2)
+        cv2.line(validation_mask_image, (robot_center[0] - robot_width, robot_center[1]),
+                 (robot_center[0] - robot_width, robot_front), (0, 0, 255), 2)
+        cv2.line(validation_mask_image, (robot_center[0] + robot_width, robot_center[1]),
+                 (robot_center[0] + robot_width, robot_front), (0, 0, 255), 2)
 
         # Draw a line representing the boundary of the front of the robot
-        cv2.line(validationMaskImage, (robotLeft, robotFront), (robotRight, robotFront), (0, 0, 255), 2)
+        cv2.line(validation_mask_image, (robot_left, robot_front), (robot_right, robot_front), (0, 0, 255), 2)
 
         # Calculate the trajectory of the robot
         (translation, rotation) = trajectory.calculateTrajectory(prediction)
@@ -208,26 +209,26 @@ def predictImages(config_file, weight_path, numInfer):
         (translation_x, translation_y) = trajectory.trajectoryToPoint(translation, rotation)
 
         # Display the magnitude and direction of the vector the robot should drive along
-        cv2.putText(validationMaskImage, "Rotation: " + str(rotation), (10, 50),
+        cv2.putText(validation_mask_image, "Rotation: " + str(rotation), (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.putText(validationMaskImage, "Translation: " + str(translation), (10, 80),
+        cv2.putText(validation_mask_image, "Translation: " + str(translation), (10, 80),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
         # Draw an arrowed line indicating the predicted trajectory of the robot
         if rotation == -1 and translation == 0:
-            cv2.arrowedLine(validationMaskImage, (robotCenter[0], robotFront),
-                            (input_width - 1, robotFront), (0, 0, 255), 2)
+            cv2.arrowedLine(validation_mask_image, (robot_center[0], robot_front),
+                            (input_width - 1, robot_front), (0, 0, 255), 2)
         elif rotation == 1 and translation == 0:
-            cv2.arrowedLine(validationMaskImage, (robotCenter[0], robotFront),
-                            (0, robotFront), (0, 0, 255), 2)
+            cv2.arrowedLine(validation_mask_image, (robot_center[0], robot_front),
+                            (0, robot_front), (0, 0, 255), 2)
         else:
-            cv2.arrowedLine(validationMaskImage, robotCenter, (translation_x, translation_y), (0, 0, 255), 2)
+            cv2.arrowedLine(validation_mask_image, robot_center, (translation_x, translation_y), (0, 0, 255), 2)
 
         # Save the overlayed image
-        cv2.imwrite(inference_dir + "/" + _id.replace(".jpg", "") + "_inference.jpg", validationMaskImage)
+        cv2.imwrite(inference_dir + "/" + _id.replace(".jpg", "") + "_inference.jpg", validation_mask_image)
 
         n += 1
-        if numInfer is not None and n - 1 == numInfer:
+        if num_infer is not None and n - 1 == num_infer:
             break
 
     return
@@ -244,13 +245,13 @@ def distance(p1, p2):
    and return the average error of the worst 10%'''
 
 
-def rankImages(config_file):
+def rank_images(config_file):
     # Make inferences on the images in the image_dir
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Open the file to store the names of the images with the largest error
     try:
-        worst_file = open(os.path.join(ROOT_DIR, 'Rankings'), 'w')
+        worst_file = open(os.path.join(root_dir, 'Rankings'), 'w')
     except OSError as err:
         print("Error: {0}".format(err))
         return
@@ -265,7 +266,7 @@ def rankImages(config_file):
     # ** Images
     image_dir = config_client.get('rank', 'image_path')
     if not os.path.exists(image_dir):
-        raise 'input dir does not exist'
+        raise Exception('input dir does not exist')
 
     # ** Input Sizes
     input_width = config_client.getint('model', 'input_width')
@@ -282,19 +283,19 @@ def rankImages(config_file):
 
     # Load the 4 models
     print("Loading model 1")
-    model_1 = load_model(os.path.join(ROOT_DIR, weight_path_prefix + '_h1'),
+    model_1 = load_model(os.path.join(root_dir, weight_path_prefix + '_h1'),
                          custom_objects={'_hard_swish': _hard_swish,
                                          '_relu6': _relu6})
     print("Loading model 2")
-    model_2 = load_model(os.path.join(ROOT_DIR, weight_path_prefix + '_h2'),
+    model_2 = load_model(os.path.join(root_dir, weight_path_prefix + '_h2'),
                          custom_objects={'_hard_swish': _hard_swish,
                                          '_relu6': _relu6})
     print("Loading model 3")
-    model_3 = load_model(os.path.join(ROOT_DIR, weight_path_prefix + '_h3'),
+    model_3 = load_model(os.path.join(root_dir, weight_path_prefix + '_h3'),
                          custom_objects={'_hard_swish': _hard_swish,
                                          '_relu6': _relu6})
     print("Loading model 4")
-    model_4 = load_model(os.path.join(ROOT_DIR, weight_path_prefix + '_h4'),
+    model_4 = load_model(os.path.join(root_dir, weight_path_prefix + '_h4'),
                          custom_objects={'_hard_swish': _hard_swish,
                                          '_relu6': _relu6})
 
@@ -378,7 +379,7 @@ def rankImages(config_file):
 # Turn the image to RGB and normalize it
 def image_augmentation(img):
     if img is None:
-        raise '** Failed to read image.'
+        raise Exception('** Failed to read image.')
     # to rgb
     img_copy = img.copy()
     img_copy = img_copy[:, :, ::-1]
